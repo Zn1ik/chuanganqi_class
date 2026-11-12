@@ -1,0 +1,254 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              11/05/2026 14:35:45 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: E:\keil5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main.l
+                    -st) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <reg52.h>        // 单片机SFR定义
+   2          #include <intrins.h>      // 内部函数定义
+   3          
+   4          #define uchar unsigned char  // 无符号字符型变量
+   5          #define uint  unsigned int   // 无符号整型变量
+   6          
+   7          /* ADC0831 引脚定义 */
+   8          sbit CS   = P1^0;   // P1.0 片选
+   9          sbit CLK  = P1^1;   // P1.1 时钟
+  10          sbit DO   = P1^2;   // P1.2 数据
+  11          
+  12          // 共阴极数码管 0～9，带小数点0～9，'-'、'U'、全灭
+  13          uchar code tab[] = {
+  14              0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f,
+  15              0xbf, 0x86, 0xdb, 0xcf, 0xe6, 0xed, 0xfd, 0x87, 0xff, 0xef,
+  16              0x40, 0x3e, 0x00
+  17          };
+  18          uchar code du[] = {0xfe, 0xfd, 0xfb, 0xf7};  // 位选控制码
+  19          uint huancun[]  = {0, 0, 0, 0};               // 显示数据缓存
+  20          
+  21          void delay(void);
+  22          void display(void);
+  23          uchar Read_ADC0831(void);
+  24          
+  25          /********************************************************
+  26          * 主程序
+  27          ********************************************************/
+  28          void main(void)
+  29          {
+  30   1          uint i;
+  31   1          long date;
+  32   1          while(1)
+  33   1          {
+  34   2              i++;
+  35   2              if(i == 100)
+  36   2              {
+  37   3                  i = 0;
+  38   3                  date = Read_ADC0831() * 100;
+  39   3                  date = date / 51;    // 5V对应255，date=255*100/51=500
+  40   3      
+  41   3                  if(date > 461 && date <= 494)
+  42   3                  {
+  43   4                      date = date * (-3.1818);
+  44   4                      date = date + 1576.35;
+  45   4                      date = date / 10;
+  46   4                  }
+  47   3                  else if(date > 438 && date <= 461)
+  48   3                  {
+  49   4                      date = date * (-3.6364);
+  50   4                      date = date + 1782.74;
+  51   4                      date = date / 10;
+  52   4                  }
+  53   3                  else if(date > 401 && date <= 438)
+  54   3                  {
+C51 COMPILER V9.60.7.0   MAIN                                                              11/05/2026 14:35:45 PAGE 2   
+
+  55   4                      date = date * (-4.8571);
+  56   4                      date = date + 2319.98;
+  57   4                      date = date / 10;
+  58   4                  }
+  59   3                  else if(date > 373 && date <= 401)
+  60   3                  {
+  61   4                      date = date * (-6);
+  62   4                      date = date + 2782;
+  63   4                      date = date / 10;
+  64   4                  }
+  65   3                  else if(date > 341 && date <= 373)
+  66   3                  {
+  67   4                      date = date * (-8);
+  68   4                      date = date + 3528;
+  69   4                      date = date / 10;
+  70   4                  }
+  71   3                  else if(date > 300 && date <= 341)
+  72   3                  {
+  73   4                      date = date * (-9.375);
+  74   4                      date = date + 3990.63;
+  75   4                      date = date / 10;
+  76   4                  }
+  77   3                  else if(date > 263 && date <= 300)
+  78   3                  {
+  79   4                      date = date * (-12.5);
+  80   4                      date = date + 4950;
+  81   4                      date = date / 10;
+  82   4                  }
+  83   3                  else if(date > 222 && date <= 263)
+  84   3                  {
+  85   4                      date = date * (-19.512);
+  86   4                      date = date + 6831.66;
+  87   4                      date = date / 10;
+  88   4                  }
+  89   3                  else if(date > 137 && date <= 222)
+  90   3                  {
+  91   4                      date = date * (-41.1765);
+  92   4                      date = date + 11641.18;
+  93   4                      date = date / 10;
+  94   4                  }
+  95   3                  else if(date > 91 && date <= 137)
+  96   3                  {
+  97   4                      date = date * (-100);
+  98   4                      date = date + 19700;
+  99   4                      date = date / 10;
+ 100   4                  }
+ 101   3                  else if(date > 66 && date <= 91)
+ 102   3                  {
+ 103   4                      date = date * (-235.2941);
+ 104   4                      date = date + 32294.12;
+ 105   4                      date = date / 10;
+ 106   4                  }
+ 107   3                  else if(date > 50 && date <= 66)
+ 108   3                  {
+ 109   4                      date = date * (-454.5455);
+ 110   4                      date = date + 47000;
+ 111   4                      date = date / 10;
+ 112   4                  }
+ 113   3                  else if(date > 39 && date <= 50)
+ 114   3                  {
+ 115   4                      date = date * (-727.2727);
+ 116   4                      date = date + 62000;
+C51 COMPILER V9.60.7.0   MAIN                                                              11/05/2026 14:35:45 PAGE 3   
+
+ 117   4                      date = date / 10;
+ 118   4                  }
+ 119   3                  else if(date > 33 && date <= 39)
+ 120   3                  {
+ 121   4                      date = date * (-1000);
+ 122   4                      date = date + 74000;
+ 123   4                      date = date / 10;
+ 124   4                  }
+ 125   3                  else if(date > 25 && date <= 33)
+ 126   3                  {
+ 127   4                      date = date * (-2166.6667);
+ 128   4                      date = date + 111500;
+ 129   4                      date = date / 10;
+ 130   4                  }
+ 131   3                  else if(date > 17 && date <= 25)
+ 132   3                  {
+ 133   4                      date = date * (-4848.4211);
+ 134   4                      date = date / 10;
+ 135   4                      date = date + 17736.253;
+ 136   4                  }
+ 137   3                  else if(date >= 14 && date <= 17)
+ 138   3                  {
+ 139   4                      date = date * (-3846.1538);
+ 140   4                      date = date / 10;
+ 141   4                      date = date + 15692.308;
+ 142   4                  }
+ 143   3      
+ 144   3                  huancun[0] = date / 1000;        // 千位
+ 145   3                  huancun[1] = date % 1000 / 100;  // 百位
+ 146   3                  huancun[2] = date % 100 / 10;    // 十位
+ 147   3                  huancun[2] += 10;                // 开启小数点
+ 148   3                  huancun[3] = date % 10;          // 小数第一位
+ 149   3              }
+ 150   2              display();
+ 151   2          }
+ 152   1      }
+ 153          
+ 154          /********************************************************
+ 155          * 延时函数
+ 156          ********************************************************/
+ 157          void delay(void)
+ 158          {
+ 159   1          uchar i;
+ 160   1          for(i = 0; i < 180; i++);
+ 161   1      }
+ 162          
+ 163          /********************************************************
+ 164          * 数码管动态显示
+ 165          * 位选：P3，段选：P2
+ 166          ********************************************************/
+ 167          void display(void)
+ 168          {
+ 169   1          uchar i;
+ 170   1          for(i = 0; i < 4; i++)
+ 171   1          {
+ 172   2              P3 = du[i];
+ 173   2              P2 = tab[huancun[i]];
+ 174   2              delay();
+ 175   2          }
+ 176   1      }
+ 177          
+ 178          /********************************************************
+C51 COMPILER V9.60.7.0   MAIN                                                              11/05/2026 14:35:45 PAGE 4   
+
+ 179          * 读取ADC0831 （保留你原版时序）
+ 180          ********************************************************/
+ 181          uchar Read_ADC0831(void)
+ 182          {
+ 183   1          uchar i, temp;
+ 184   1          DO = 1;
+ 185   1          _nop_();
+ 186   1          _nop_();
+ 187   1          CS = 0;
+ 188   1          _nop_();
+ 189   1          _nop_();
+ 190   1          CLK = 0;
+ 191   1          _nop_();
+ 192   1          _nop_();
+ 193   1          CLK = 1;
+ 194   1          _nop_();
+ 195   1          _nop_();
+ 196   1          CLK = 0;
+ 197   1          _nop_();
+ 198   1          _nop_();
+ 199   1          CLK = 1;
+ 200   1          _nop_();
+ 201   1          _nop_();
+ 202   1          CLK = 0;
+ 203   1          _nop_();
+ 204   1          _nop_();
+ 205   1      
+ 206   1          for(i = 0; i < 8; i++)
+ 207   1          {
+ 208   2              CLK = 1;
+ 209   2              _nop_();
+ 210   2              _nop_();
+ 211   2              temp <<= 1;
+ 212   2              if(DO)
+ 213   2              {
+ 214   3                  temp++;
+ 215   3              }
+ 216   2              CLK = 0;
+ 217   2              _nop_();
+ 218   2              _nop_();
+ 219   2          }
+ 220   1          CS = 1;
+ 221   1          _nop_();
+ 222   1          _nop_();
+ 223   1          return temp;
+ 224   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1828    ----
+   CONSTANT SIZE    =     27    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
